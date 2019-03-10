@@ -6,17 +6,16 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
+import javax.persistence.GeneratedValue; // provides spec. of generation strategies for the values of primary keys
 import javax.persistence.Id;
 
 @Entity
 public class User implements Serializable {
-	
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue // defaults to jpa.GeneratedType.AUTO value generation
 	private Long id;
 	
 	@Column(nullable = false) 
@@ -30,6 +29,15 @@ public class User implements Serializable {
 
 	@Column(nullable = false)
 	private UserStatus status;
+
+	@Column(nullable = false)
+	private String password;
+	public String getPassword(){
+		return this.password;
+	}
+	public void setPassword(String password){
+		this.password = password;
+	}
 
 	public Long getId() {
 		return id;
