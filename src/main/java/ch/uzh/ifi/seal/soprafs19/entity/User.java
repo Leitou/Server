@@ -1,8 +1,10 @@
 package ch.uzh.ifi.seal.soprafs19.entity;
 
 import ch.uzh.ifi.seal.soprafs19.constant.UserStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,6 +39,23 @@ public class User implements Serializable {
 	}
 	public void setPassword(String password){
 		this.password = password;
+	}
+
+	@Column
+	private String creationDate;
+
+
+
+	public String getCreationDate(){
+	    return this.creationDate;
+    }
+	public void setCreationDate(User u){
+	    if (u != null){
+	        this.creationDate = u.creationDate;
+        } else {
+            Date creationTime = new Date();
+            this.creationDate = creationTime.toString();
+        }
 	}
 
 	public Long getId() {

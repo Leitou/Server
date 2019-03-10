@@ -48,17 +48,20 @@ public class UserService {
             }
             // case: The username exists in the database and password matches
             else {
-                // need for setting the
                 newUser.setName(dbUser.getName());
                 newUser.setId(dbUser.getId());
+                newUser.setCreationDate(dbUser);
             }
         }
         // case: Registration
         else if (dbUser != null) {
             throw new RegisterError("username already taken");
         }
+        // set the creationDate only once
+        if (dbUser == null){
+            newUser.setCreationDate(dbUser);
+        }
         newUser.setToken(UUID.randomUUID().toString());
-
         newUser.setStatus(UserStatus.ONLINE);
         System.out.println("saving user: "+newUser.getName()+" "+newUser.getUsername()+" "+newUser.getPassword());
         userRepository.save(newUser);
