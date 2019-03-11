@@ -34,17 +34,29 @@ public class User implements Serializable {
 
 	@Column(nullable = false)
 	private String password;
-	public String getPassword(){
-		return this.password;
-	}
-	public void setPassword(String password){
-		this.password = password;
-	}
 
-	@Column
-	private String creationDate;
+    @Column(nullable = false)
+    private int birthDate;
+
+    @Column
+    private String creationDate;
 
 
+
+    public String getPassword(){
+        return this.password;
+    }
+
+    public void setPassword(String password){
+        this.password = password;
+    }
+
+    public int getBirthDate() {
+        return birthDate;
+    }
+    public void setBirthDate(int birthDate) {
+        this.birthDate = birthDate;
+    }
 
 	public String getCreationDate(){
 	    return this.creationDate;

@@ -28,7 +28,7 @@ public class UserController {
 
     @GetMapping("/users/{userId}")
     User getUser(@PathVariable("userId")Long id) {
-        return userRepository.findById(id).orElseThrow(UserNonexistentException::new);
+        return this.userRepository.findById(id).orElseThrow(UserNonexistentException::new);
     }
 
     @PostMapping("/users")
@@ -37,13 +37,14 @@ public class UserController {
         this.service.createUser(newUser);
         return new ResponseEntity<User>(newUser, HttpStatus.OK);
 
-
     }
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/users/{userId}")
     void updateUser (@PathVariable("userId")Long id, @RequestBody User upUser){
+        System.out.println("\nupUser token: "+upUser.getToken());
         this.service.updateUser(upUser,id);
     }
+
 //    @PostMapping("/users")
 //    User createUser(@RequestBody User newUser) {
 //        System.out.println("\n\n\n service.getUsers(): ");

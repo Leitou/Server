@@ -35,7 +35,7 @@ public class UserService {
     public User createUser(User newUser) {
 
         User dbUser = this.userRepository.findByUsername(newUser.getUsername());
-        System.out.println("is newUser already stored?\n"+(dbUser!=null));
+        System.out.println("is newUser already stored? "+(dbUser!=null));
         // case: Login
         if (newUser.getName() == null){
             // case: This username does not exist in the database
@@ -51,6 +51,7 @@ public class UserService {
                 newUser.setName(dbUser.getName());
                 newUser.setId(dbUser.getId());
                 newUser.setCreationDate(dbUser);
+                newUser.setBirthDate(dbUser.getBirthDate());
             }
         }
         // case: Registration
@@ -63,18 +64,36 @@ public class UserService {
         }
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.ONLINE);
-        System.out.println("saving user: "+newUser.getName()+" "+newUser.getUsername()+" "+newUser.getPassword());
+        System.out.println("saving user: "+newUser.getName()+" "+newUser.getUsername()+" "+
+                newUser.getPassword()+ " " +newUser.getCreationDate()+ " " + newUser.getBirthDate());
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
 
+
     public void updateUser(User upUser, Long id){
+        System.out.println("upUser id: "+upUser.getId());
         User dbUser = userRepository.findById(id).orElseThrow(UserNonexistentException::new);
         if (!dbUser.getToken().equals(upUser.getToken())){
             throw new AccessDeniedException();
         }
-        dbUser.setName(upUser.getName());
-        userRepository.save(dbUser);
+        dbUser.setBirthDate(upUser.getBirthDate());
+        dbUser.setUsername(upUser.getUsername());
+        //dbUser.setPassword(upUser.getPassword());
+        //dbUser.setCreationDate(upUser);
+        //dbUser.setPassword(upUser.getPassword());
+
     }
+
+
+
+//    public void updateUser(User upUser, Long id){
+//        User dbUser = userRepository.findById(id).orElseThrow(UserNonexistentException::new);
+//        if (!dbUser.getToken().equals(upUser.getToken())){
+//            throw new AccessDeniedException();
+//        }
+//        dbUser.setName(upUser.getName());
+//        userRepository.save(dbUser);
+//    }
 }
