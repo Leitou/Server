@@ -73,7 +73,6 @@ public class UserService {
 
 
     public void updateUser(User upUser, Long id){
-        System.out.println("upUser id: "+upUser.getId());
         User dbUser = userRepository.findById(id).orElseThrow(UserNonexistentException::new);
         if (!dbUser.getToken().equals(upUser.getToken())){
             throw new AccessDeniedException();

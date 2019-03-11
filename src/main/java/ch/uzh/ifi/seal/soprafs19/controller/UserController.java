@@ -38,6 +38,7 @@ public class UserController {
         return new ResponseEntity<User>(newUser, HttpStatus.OK);
 
     }
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/users/{userId}")
     void updateUser (@PathVariable("userId")Long id, @RequestBody User upUser){
