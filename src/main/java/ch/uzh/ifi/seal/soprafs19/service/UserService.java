@@ -2,10 +2,7 @@ package ch.uzh.ifi.seal.soprafs19.service;
 
 import ch.uzh.ifi.seal.soprafs19.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs19.entity.User;
-import ch.uzh.ifi.seal.soprafs19.error.AccessDeniedException;
-import ch.uzh.ifi.seal.soprafs19.error.LoginError;
-import ch.uzh.ifi.seal.soprafs19.error.RegisterError;
-import ch.uzh.ifi.seal.soprafs19.error.UserNonexistentException;
+import ch.uzh.ifi.seal.soprafs19.error.*;
 import ch.uzh.ifi.seal.soprafs19.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +18,6 @@ public class UserService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
-
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -40,6 +36,8 @@ public class UserService {
         if (newUser.getName() == null){
             // case: This username does not exist in the database
             if (dbUser == null){
+                // Attention! handleLoginError() in CustomExceptionHandler distinguishes dep. on message
+                // do not alter LoginError messages
                 throw new LoginError("Please register first in order to login");
             }
             // case: The password of the user with this username is not equal to the entered password
@@ -52,18 +50,19 @@ public class UserService {
                 newUser.setId(dbUser.getId());
                 newUser.setCreationDate(dbUser);
                 newUser.setBirthDate(dbUser.getBirthDate());
+                newUser.setStatus(UserStatus.ONLINE);
             }
         }
         // case: Registration
         else if (dbUser != null) {
-            throw new RegisterError("username already taken");
+            throw new UsernameTakenException("username already taken");
         }
         // set the creationDate only once
         if (dbUser == null){
             newUser.setCreationDate(dbUser);
+            newUser.setStatus(UserStatus.OFFLINE);
         }
         newUser.setToken(UUID.randomUUID().toString());
-        newUser.setStatus(UserStatus.ONLINE);
         System.out.println("saving user: "+newUser.getName()+" "+newUser.getUsername()+" "+
                 newUser.getPassword()+ " " +newUser.getCreationDate()+ " " + newUser.getBirthDate());
         userRepository.save(newUser);
@@ -71,28 +70,19 @@ public class UserService {
         return newUser;
     }
 
-
     public void updateUser(User upUser, Long id){
         User dbUser = userRepository.findById(id).orElseThrow(UserNonexistentException::new);
         if (!dbUser.getToken().equals(upUser.getToken())){
             throw new AccessDeniedException();
+        }
+        if (userRepository.findByUsername(upUser.getUsername()) != null){
+            throw new UsernameTakenException("username already taken");
         }
         dbUser.setBirthDate(upUser.getBirthDate());
         dbUser.setUsername(upUser.getUsername());
         //dbUser.setPassword(upUser.getPassword());
         //dbUser.setCreationDate(upUser);
         //dbUser.setPassword(upUser.getPassword());
-
     }
 
-
-
-//    public void updateUser(User upUser, Long id){
-//        User dbUser = userRepository.findById(id).orElseThrow(UserNonexistentException::new);
-//        if (!dbUser.getToken().equals(upUser.getToken())){
-//            throw new AccessDeniedException();
-//        }
-//        dbUser.setName(upUser.getName());
-//        userRepository.save(dbUser);
-//    }
 }

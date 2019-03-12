@@ -2,6 +2,8 @@ package ch.uzh.ifi.seal.soprafs19.controller;
 
 import ch.uzh.ifi.seal.soprafs19.entity.User;
 import ch.uzh.ifi.seal.soprafs19.error.UserNonexistentException;
+import ch.uzh.ifi.seal.soprafs19.error.UsernameTakenException;
+
 import ch.uzh.ifi.seal.soprafs19.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs19.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +37,7 @@ public class UserController {
     ResponseEntity<User> createUser(@RequestBody User newUser){
         System.out.println("\n\n\n service.getUsers(): "+service.getUsers()+"\n\n\n");
         this.service.createUser(newUser);
-        return new ResponseEntity<User>(newUser, HttpStatus.OK);
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
 
     }
     @CrossOrigin(origins = "http://localhost:3000")
