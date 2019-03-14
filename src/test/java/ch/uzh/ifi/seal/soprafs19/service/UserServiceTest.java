@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.List;
+
 /**
  * Test class for the UserResource REST resource.
  *
@@ -63,10 +65,10 @@ public class UserServiceTest {
         testUser.setBirthDate(4321);
         testUser.setUsername("usernameTest");
         userService.updateUser(testUser, id);
-        User dbUser = userRepository.findByToken(createdUser.getToken());
 
-        Assert.assertEquals(dbUser.getBirthDate(),4321);
-        Assert.assertEquals(dbUser.getUsername(),"usernameTest");
+        Assert.assertNotNull(createdUser.getToken());
+        Assert.assertEquals(createdUser.getBirthDate(),4321);
+        Assert.assertEquals(createdUser.getUsername(),"usernameTest");
 
 
     }

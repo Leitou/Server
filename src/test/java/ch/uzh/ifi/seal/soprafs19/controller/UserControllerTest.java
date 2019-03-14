@@ -9,70 +9,70 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
+
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-//import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-
+@WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class UserControllerTest {
 
     private MockMvc mockMvc;
     private User testUser, dbUser;
 
-//    @Qualifier("userRepository")
-//    @Autowired
-    private UserRepository userRepository;
-
-
     @Mock
     private UserService userService;
+    @Mock
+    private UserRepository userRepository;
 
-    @InjectMocks
+    @InjectMocks // instantiates a UserController which gets the Mocks injected
     private UserController userController;
+
+    final Long USER_ID = 1L;
 
     @Before
     public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(userController)
-                .build();
+        //MockitoAnnotations.initMocks(this);
+        // mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         testUser = new User();
         testUser.setName("testName");
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword"); // needed for creation of new user
         testUser.setBirthDate(1234); // needed for creation of new user
-//        dbUser = userService.createUser(testUser);
-//        System.out.println("\n\n\n\n\n"+dbUser+"\n\n\n\n");
+        testUser.setId(USER_ID);
+
+        //userRepository.save(testUser);
+        userService.createUser(testUser);
+        System.out.println("\n\n\n\n\n"+testUser.getToken()+"\n\n\n\n");
     }
 
     @Test
@@ -88,17 +88,32 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].username", is(testUser.getUsername())))
                 .andExpect(jsonPath("$[0].name", is(testUser.getName())))
                 .andExpect(jsonPath("$[0].password", is(testUser.getPassword())))
-//                .andExpect(jsonPath("$[0].birthDate", is(1234)))
-//                .andExpect(jsonPath("$[0].id", is(dbUser.getId())))
-//                .andExpect(jsonPath("$[0].status", is(UserStatus.OFFLINE)))
+                .andExpect(jsonPath("$[0].birthDate", is(1234)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                //.andExpect(jsonPath("$[0].status", is(UserStatus.OFFLINE)))
                 //.andExpect(jsonPath("$[0].creationDate", is(dbUser.getCreationDate())))
         ;
     }
 
     @Test
     public void getUser() throws Exception {
-    }
 
+        //User newUser = userService.createUser(testUser);
+        System.out.println("\n\n\nuserId: "+testUser.getId()+"\n\n\n");
+        when(userRepository.findById(anyLong())).thenReturn(java.util.Optional.ofNullable(testUser)); //ensure there is a user with id 1
+        Long userId = testUser.getId();
+
+        mockMvc.perform(get("/users/1")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.username", is(testUser.getUsername())))
+                .andExpect(jsonPath("$.name", is(testUser.getName())))
+                .andExpect(jsonPath("$.password", is(testUser.getPassword())))
+                .andExpect(jsonPath("$.birthDate", is(1234)));
+
+        //this.userRepository.findById(id).orElseThrow(UserNonexistentException::new);
+        }
     @Test
     public void createUser() throws Exception {
         String json = "{\n" +
@@ -119,10 +134,17 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.password", is("testPassword")))
                 .andExpect(jsonPath("$.birthDate", is(1234)))
         ;
-
     }
 
     @Test
     public void updateUser() {
+
+        String json = "{\n" +
+                "  \"username\": \"usernameTest\",\n" +
+                "  \"birthDate\": \"4321\"\n" +
+                "}";
+
+
+
     }
 }
