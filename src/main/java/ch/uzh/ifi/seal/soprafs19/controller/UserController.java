@@ -38,47 +38,13 @@ public class UserController {
         System.out.println("\n\n\n service.getUsers(): "+service.getUsers()+"\n\n\n");
         this.service.createUser(newUser);
         return new ResponseEntity<>(newUser, HttpStatus.OK);
-
     }
+
     @CrossOrigin(origins = "http://localhost:3000")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NO_CONTENT) // is only used when completed successfully
     @PutMapping("/users/{userId}")
     void updateUser (@PathVariable("userId")Long id, @RequestBody User upUser){
         System.out.println("\nupUser token: "+upUser.getToken());
         this.service.updateUser(upUser,id);
     }
-
-//    @PostMapping("/users")
-//    User createUser(@RequestBody User newUser) {
-//        System.out.println("\n\n\n service.getUsers(): ");
-//        System.out.println(service.getUsers());
-//        System.out.println("\n\n\n");
-//        Iterable<User> userIterable = service.getUsers();
-////        for(User u: userIterable){
-////            if (u.getUsername() == newUser.getUsername()){
-////                throw new HttpClientErrorException(HttpStatus.CONFLICT, "username already taken");
-////            }
-////        }
-//
-//        System.out.println("********the newUser has this username: "+newUser.getUsername());
-//
-//        return this.service.createUser(newUser);
-//    }
-
-
-//    @PostMapping("/users")
-//    public ResponseEntity createUsr(@RequestBody User newUser){
-//        System.out.println("\n\n\n service.getUsers(): ");
-//        System.out.println(service.getUsers());
-//        System.out.println("\n\n\n");
-//        Iterable<User> userIterable = service.getUsers();
-//        for(User u: userIterable){
-//            if (u.getUsername() == newUser.getUsername()){
-//                return new ResponseEntity(HttpStatus.CONFLICT);
-//            }
-//        }
-//        return this.service.createUser(newUser);
-
-
-
 }

@@ -75,7 +75,8 @@ public class UserService {
         if (!dbUser.getToken().equals(upUser.getToken())){
             throw new AccessDeniedException();
         }
-        if (userRepository.findByUsername(upUser.getUsername()) != null){
+        User dbUnameUser = userRepository.findByUsername(upUser.getUsername());
+        if ( dbUnameUser!= null && dbUnameUser != dbUser){
             throw new UsernameTakenException("username already taken");
         }
         dbUser.setBirthDate(upUser.getBirthDate());
