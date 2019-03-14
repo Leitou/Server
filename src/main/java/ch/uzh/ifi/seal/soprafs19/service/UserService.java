@@ -81,6 +81,7 @@ public class UserService {
         }
         dbUser.setBirthDate(upUser.getBirthDate());
         dbUser.setUsername(upUser.getUsername());
+        //userRepository.save(dbUser);
         //dbUser.setPassword(upUser.getPassword());
         //dbUser.setCreationDate(upUser);
         //dbUser.setPassword(upUser.getPassword());

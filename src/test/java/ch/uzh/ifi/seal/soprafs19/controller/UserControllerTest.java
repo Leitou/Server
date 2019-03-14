@@ -1,39 +1,31 @@
 package ch.uzh.ifi.seal.soprafs19.controller;
 
-import ch.uzh.ifi.seal.soprafs19.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs19.entity.User;
 import ch.uzh.ifi.seal.soprafs19.service.UserService;
 import ch.uzh.ifi.seal.soprafs19.repository.UserRepository;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.*;
 
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -62,7 +54,8 @@ public class UserControllerTest {
     public void setUp() throws Exception {
         //MockitoAnnotations.initMocks(this);
         // mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(userController)
+                .build();
         testUser = new User();
         testUser.setName("testName");
         testUser.setUsername("testUsername");
@@ -83,6 +76,7 @@ public class UserControllerTest {
         given(userController.all()).willReturn(allUsers);
         mockMvc.perform(get("/users")
                 .contentType(APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*",hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is(testUser.getUsername())))
@@ -111,8 +105,9 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.name", is(testUser.getName())))
                 .andExpect(jsonPath("$.password", is(testUser.getPassword())))
                 .andExpect(jsonPath("$.birthDate", is(1234)));
+        verify(userRepository, times(1)).findById(userId);
+        verifyNoMoreInteractions(userRepository);
 
-        //this.userRepository.findById(id).orElseThrow(UserNonexistentException::new);
         }
     @Test
     public void createUser() throws Exception {
@@ -127,6 +122,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*",hasSize(8)))
                 .andExpect(jsonPath("$.username", is("testUsername")))
@@ -137,13 +133,27 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateUser() {
+    public void updateUser() throws Exception {
 
         String json = "{\n" +
                 "  \"username\": \"usernameTest\",\n" +
                 "  \"birthDate\": \"4321\"\n" +
                 "}";
+        when(userRepository.findById(anyLong())).thenReturn(java.util.Optional.ofNullable(testUser));
+        doNothing().when(userService).updateUser(testUser,testUser.getId());
+        mockMvc.perform(
+                MockMvcRequestBuilders.put("/users/1")//{id}",testUser.getId())
+                .contentType(APPLICATION_JSON)
+                .content(json))
+                .andDo(print())
+                .andExpect(status().isNoContent()); // successful 204
 
+
+        //verify(userRepository,times(1)).findById(testUser.getId());
+        //verifyNoMoreInteractions(userService);
+
+        //verify(userService, times(1)).updateUser(testUser,testUser.getId());
+        //verifyNoMoreInteractions(userService);
 
 
     }
