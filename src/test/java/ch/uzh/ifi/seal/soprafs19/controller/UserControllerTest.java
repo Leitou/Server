@@ -26,6 +26,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -98,13 +99,15 @@ public class UserControllerTest {
         Long userId = testUser.getId();
 
         mockMvc.perform(get("/users/1")
-                .contentType(APPLICATION_JSON))
+                .contentType(APPLICATION_JSON_VALUE))
+
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.username", is(testUser.getUsername())))
                 .andExpect(jsonPath("$.name", is(testUser.getName())))
                 .andExpect(jsonPath("$.password", is(testUser.getPassword())))
                 .andExpect(jsonPath("$.birthDate", is(1234)));
+
         verify(userRepository, times(1)).findById(userId);
         verifyNoMoreInteractions(userRepository);
 
@@ -120,7 +123,8 @@ public class UserControllerTest {
         //System.out.println("\n\ndbUser token:"+dbUser+"\n\n");
 
         mockMvc.perform(post("/users")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .characterEncoding("utf-8")
                 .content(json))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -139,11 +143,13 @@ public class UserControllerTest {
                 "  \"username\": \"usernameTest\",\n" +
                 "  \"birthDate\": \"4321\"\n" +
                 "}";
+        Long userId = testUser.getId();
         when(userRepository.findById(anyLong())).thenReturn(java.util.Optional.ofNullable(testUser));
-        doNothing().when(userService).updateUser(testUser,testUser.getId());
+        doNothing().when(userService).updateUser(testUser,userId);
         mockMvc.perform(
-                MockMvcRequestBuilders.put("/users/1")//{id}",testUser.getId())
+                MockMvcRequestBuilders.put("/users/{userId}",userId)//{id}",testUser.getId())
                 .contentType(APPLICATION_JSON)
+                .characterEncoding("utf-8")
                 .content(json))
                 .andDo(print())
                 .andExpect(status().isNoContent()); // successful 204
