@@ -35,7 +35,7 @@ public class UserController {
 
     @PostMapping("/users")
     ResponseEntity<User> createUser(@RequestBody User newUser){
-        System.out.println("\n\n\n service.getUsers(): "+service.getUsers()+"\n\n\n");
+        //System.out.println("\n\n\n service.getUsers(): "+service.getUsers()+"\n\n\n");
         this.service.createUser(newUser);
         return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
